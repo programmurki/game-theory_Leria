@@ -3,749 +3,493 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Theory Trading Strategies</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Торговые стратегии на основе теории игр</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
             margin: 0;
             padding: 0;
-            line-height: 1.6;
+            background-color: #121212;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        
+        #container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
+        
         header {
             background-color: #1e1e1e;
-            padding: 20px 0;
-            text-align: center;
-            border-bottom: 1px solid #333;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
-        h1 {
-            color: #f5f5f5;
-            margin: 0;
-        }
-        .strategy-section {
-            background-color: #1e1e1e;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 30px;
-            border-left: 4px solid #555;
-        }
-        h2 {
-            color: #bb86fc;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-        }
-        h3 {
-            color: #03dac6;
-        }
-        .chart-container {
-            height: 400px;
-            margin: 30px 0;
-            background-color: #252525;
-            border-radius: 8px;
-            padding: 15px;
-        }
-        .scenario {
-            background-color: #252525;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 3px solid #bb86fc;
-        }
-        .scenario h4 {
-            color: #bb86fc;
-            margin-top: 0;
-        }
-        .nav {
+        
+        nav ul {
             display: flex;
             justify-content: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
-        .nav-btn {
-            background-color: #333;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            margin: 5px;
-            cursor: pointer;
+        
+        nav li {
+            margin: 0 15px;
+        }
+        
+        nav a {
+            color: #9e9e9e;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 15px;
             border-radius: 4px;
             transition: all 0.3s;
         }
-        .nav-btn:hover {
-            background-color: #bb86fc;
-            color: #121212;
+        
+        nav a:hover, nav a.active {
+            color: #ffffff;
+            background-color: #424242;
         }
-        .nav-btn.active {
-            background-color: #bb86fc;
-            color: #121212;
-            font-weight: bold;
-        }
-        .hidden {
-            display: none;
-        }
-        .example {
-            font-style: italic;
-            color: #9e9e9e;
-            margin: 10px 0;
-            padding-left: 15px;
-            border-left: 2px solid #555;
-        }
-        footer {
-            text-align: center;
+        
+        #content {
+            flex: 1;
             padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .strategy {
+            display: none;
+            flex: 1;
+        }
+        
+        .strategy.active {
+            display: block;
+        }
+        
+        h1 {
+            color: #ffffff;
+            border-bottom: 1px solid #424242;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        h2 {
+            color: #bbbbbb;
+            margin-top: 25px;
+        }
+        
+        p {
+            line-height: 1.6;
+        }
+        
+        .example {
             background-color: #1e1e1e;
-            margin-top: 40px;
-            border-top: 1px solid #333;
+            padding: 15px;
+            border-left: 3px solid #424242;
+            margin: 15px 0;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            background-color: #1e1e1e;
+            margin: 20px 0;
+            position: relative;
+            border: 1px solid #424242;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .scenario {
+            margin-bottom: 30px;
+        }
+        
+        .scenario-title {
+            font-weight: bold;
+            color: #9e9e9e;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>Трейдинговые стратегии на основе теории игр</h1>
+    <div id="container">
+        <header>
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-link active" data-target="dilemma">Дилемма трейдера</a></li>
+                    <li><a href="#" class="nav-link" data-target="attrition">Война на истощение</a></li>
+                    <li><a href="#" class="nav-link" data-target="signaling">Сигнальные игры</a></li>
+                    <li><a href="#" class="nav-link" data-target="market-making">Маркет-мейкинг</a></li>
+                    <li><a href="#" class="nav-link" data-target="algorithmic">Алгоритмический трейдинг</a></li>
+                    <li><a href="#" class="nav-link" data-target="liquidity">Охота за ликвидностью</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <div id="content">
+            <!-- Дилемма трейдера -->
+            <div class="strategy active" id="dilemma">
+                <h1>Дилемма трейдера (аналог «Дилеммы заключённого»)</h1>
+                
+                <p><strong>Суть:</strong> Если все побегут покупать акцию — цена взлетит, и выгода исчезнет. Если все будут ждать — можно упустить тренд.</p>
+                
+                <h2>Как применяется:</h2>
+                <p>Контртрендовая торговля: покупка, когда другие паникуют (стратегия «наперекор толпе»).</p>
+                
+                <div class="chart-container">
+                    <canvas id="dilemmaChart" class="chart"></canvas>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Сценарий 1: Все покупают</div>
+                    <p>Когда большинство трейдеров начинают покупать актив, цена резко растет, но затем быстро падает, так как ранние покупатели фиксируют прибыль.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> В январе 2021 года многие инвесторы массово покупали акции GameStop, что привело к резкому росту цены. Однако позже цена упала, когда крупные игроки начали продавать.
+                    </div>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Сценарий 2: Все ждут</div>
+                    <p>Когда трейдеры ожидают лучшего момента для входа, цена может медленно расти без резких скачков, но многие упускают начало тренда.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> Bitcoin в 2016 году: многие ждали "идеального момента" для входа, пока цена медленно росла с $400 до $1000.
+                    </div>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Оптимальная стратегия</div>
+                    <p>Контртрендовый подход: покупать, когда другие продают в панике, и продавать, когда все активно покупают.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> Bitcoin резко падает, но вы покупаете, зная, что паника временна. Когда цена восстанавливается, вы фиксируете прибыль.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Война на истощение -->
+            <div class="strategy" id="attrition">
+                <h1>Война на истощение (War of Attrition)</h1>
+                
+                <p><strong>Суть:</strong> Игроки держатся до последнего, надеясь, что соперник сдастся первым.</p>
+                
+                <h2>В трейдинге:</h2>
+                <p>Удержание убыточной позиции, пока конкуренты не «выбросят» свои акции.</p>
+                
+                <div class="chart-container">
+                    <canvas id="attritionChart" class="chart"></canvas>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Сценарий 1: Мелкие трейдеры сдаются первыми</div>
+                    <p>Крупные игроки могут позволить себе держать убыточные позиции дольше, вынуждая мелких трейдеров закрывать позиции по невыгодным ценам.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> Фонды держат акции убыточной компании, ожидая, что мелкие трейдеры сольются первыми. После этого цена может восстановиться.
+                    </div>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Сценарий 2: Никто не сдается</div>
+                    <p>Если ни одна из сторон не готова уступить, цена может долго оставаться в узком диапазоне, пока не произойдет существенное изменение фундаментальных факторов.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> Торговая война между крупными маркет-мейкерами может привести к длительному периоду низкой волатильности.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Сигнальные игры -->
+            <div class="strategy" id="signaling">
+                <h1>Сигнальные игры (Signaling Games)</h1>
+                
+                <p><strong>Суть:</strong> Один игрок отправляет «сигнал» (например, крупный ордер), а другие его интерпретируют.</p>
+                
+                <h2>В трейдинге:</h2>
+                <p>Маркет-мейкеры намеренно оставляют крупные ордера в стакане, чтобы манипулировать ожиданиями.</p>
+                
+                <div class="chart-container">
+                    <canvas id="signalingChart" class="chart"></canvas>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Сценарий 1: Ложный сигнал</div>
+                    <p>Крупный ордер может быть выставлен для создания ложного впечатления о намерениях крупного игрока.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> Большая заявка на покупку по $100 может быть выставлена, чтобы создать впечатление поддержки, но затем быстро снята перед реальным движением цены вниз.
+                    </div>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Сценарий 2: Истинный сигнал</div>
+                    <p>Иногда крупные ордера действительно отражают намерения крупных игроков и могут служить индикатором будущего движения цены.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> Большая заявка на покупку по $100 — сигнал, что цена не упадёт ниже, если она остается в стакане длительное время и постепенно исполняется.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Маркет-мейкинг -->
+            <div class="strategy" id="market-making">
+                <h1>Маркет-мейкинг (равновесие Нэша)</h1>
+                
+                <p><strong>Откуда взята:</strong> Из модели «игры на спреде»: маркет-мейкеры выставляют заявки так, чтобы ни один из них не мог увеличить прибыль в одиночку.</p>
+                
+                <div class="chart-container">
+                    <canvas id="marketMakingChart" class="chart"></canvas>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Равновесие Нэша в спредах</div>
+                    <p>Маркет-мейкеры поддерживают определенный уровень спреда, так как любое отклонение в пользу одного участника приведет к потерям для других.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> Если все ММ выставляют спред 1%, никто не может сузить его до 0.9%, иначе проиграет из-за увеличенного риска.
+                    </div>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Изменение равновесия</div>
+                    <p>При появлении нового игрока с лучшими условиями равновесие может сместиться, заставляя всех участников адаптироваться.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> Появление высокочастотных торговых алгоритмов изменило стандартные спреды на многих рынках.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Алгоритмический трейдинг -->
+            <div class="strategy" id="algorithmic">
+                <h1>Алгоритмический трейдинг (байесовские игры)</h1>
+                
+                <p><strong>Откуда взята:</strong> Из теорий с неполной информацией: алгоритмы постоянно обновляют вероятности действий других участников.</p>
+                
+                <div class="chart-container">
+                    <canvas id="algorithmicChart" class="chart"></canvas>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Адаптация к поведению рынка</div>
+                    <p>Алгоритмы анализируют исторические данные и текущие действия участников рынка, чтобы предсказать их следующее действие.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> HFT-алгоритм «учится», что после новостей в 15:00 толпа покупает — и начинает опережать их, покупая за миллисекунды до этого.
+                    </div>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Игра с неполной информацией</div>
+                    <p>Алгоритмы пытаются скрыть свои истинные намерения, одновременно пытаясь раскрыть намерения других участников.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> Алгоритм может разбивать крупный ордер на множество мелких и исполнять их в случайные моменты времени, чтобы скрыть свои истинные объемы.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Охота за ликвидностью -->
+            <div class="strategy" id="liquidity">
+                <h1>Охота за ликвидностью (аукционные теории)</h1>
+                
+                <p><strong>Откуда взята:</strong> Из аукционов Викри и Groves-Clarke: как выставлять ордера, чтобы минимизировать проскальзывание.</p>
+                
+                <div class="chart-container">
+                    <canvas id="liquidityChart" class="chart"></canvas>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Минимизация проскальзывания</div>
+                    <p>Крупные игроки используют специальные алгоритмы для исполнения ордеров с минимальным влиянием на цену.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> Крупный игрок разбивает ордер на части, чтобы не «показать» свои намерения и не вызвать резкого движения цены.
+                    </div>
+                </div>
+                
+                <div class="scenario">
+                    <div class="scenario-title">Обнаружение крупных ордеров</div>
+                    <p>Другие участники рынка пытаются обнаружить крупные ордера по косвенным признакам, чтобы заранее позиционироваться.</p>
+                    <div class="example">
+                        <strong>Пример:</strong> Алгоритмы могут анализировать мелкие, но частые ордера в одном направлении как признак крупного игрока и начинать двигать цену в этом направлении.
+                    </div>
+                </div>
+            </div>
         </div>
-    </header>
-
-    <div class="container">
-        <div class="nav">
-            <button class="nav-btn active" data-target="prisoner">Дилемма трейдера</button>
-            <button class="nav-btn" data-target="attrition">Война на истощение</button>
-            <button class="nav-btn" data-target="signaling">Сигнальные игры</button>
-            <button class="nav-btn" data-target="market-making">Маркет-мейкинг</button>
-            <button class="nav-btn" data-target="algorithmic">Алгоритмический трейдинг</button>
-            <button class="nav-btn" data-target="liquidity">Охота за ликвидностью</button>
-        </div>
-
-        <!-- Дилемма трейдера -->
-        <section id="prisoner" class="strategy-section">
-            <h2>А. Дилемма трейдера (аналог Дилеммы заключённого)</h2>
-            <p><strong>Суть:</strong> Если все побегут покупать акцию — цена взлетит, и выгода исчезнет. Если все будут ждать — можно упустить тренд.</p>
-            <p><strong>Как применяется:</strong> Контртрендовая торговля: покупка, когда другие паникуют (стратегия «наперекор толпе»).</p>
-            <div class="example">
-                <strong>Пример:</strong> Bitcoin резко падает, но вы покупаете, зная, что паника временна.
-            </div>
-
-            <div class="chart-container">
-                <canvas id="prisonerChart"></canvas>
-            </div>
-
-            <h3>Сценарии</h3>
-            <div class="scenario">
-                <h4>Сценарий 1: Все покупают</h4>
-                <p>Массовый вход в позицию приводит к резкому росту цены, после чего следует коррекция.</p>
-            </div>
-            <div class="scenario">
-                <h4>Сценарий 2: Все ждут</h4>
-                <p>Отсутствие покупателей приводит к продолжению нисходящего тренда, упуская точку входа.</p>
-            </div>
-            <div class="scenario">
-                <h4>Сценарий 3: Контртрендовая стратегия</h4>
-                <p>Небольшая группа трейдеров покупает на панике, получая выгоду от последующего отскока.</p>
-            </div>
-        </section>
-
-        <!-- Война на истощение -->
-        <section id="attrition" class="strategy-section hidden">
-            <h2>Б. Война на истощение (War of Attrition)</h2>
-            <p><strong>Суть:</strong> Игроки держатся до последнего, надеясь, что соперник сдастся первым.</p>
-            <p><strong>В трейдинге:</strong> Удержание убыточной позиции, пока конкуренты не «выбросят» свои акции.</p>
-            <div class="example">
-                <strong>Пример:</strong> Фонды держат акции убыточной компании, ожидая, что мелкие трейдеры сольются первыми.
-            </div>
-
-            <div class="chart-container">
-                <canvas id="attritionChart"></canvas>
-            </div>
-
-            <h3>Сценарии</h3>
-            <div class="scenario">
-                <h4>Сценарий 1: Мелкие трейдеры сдаются первыми</h4>
-                <p>После их выхода крупные игроки получают контроль над ценой и могут развернуть тренд.</p>
-            </div>
-            <div class="scenario">
-                <h4>Сценарий 2: Никто не сдаётся</h4>
-                <p>Длительное противостояние приводит к значительным убыткам всех участников.</p>
-            </div>
-            <div class="scenario">
-                <h4>Сценарий 3: Новый игрок вмешивается</h4>
-                <p>Появление крупного покупателя/продавца ломает баланс и определяет победителя.</p>
-            </div>
-        </section>
-
-        <!-- Сигнальные игры -->
-        <section id="signaling" class="strategy-section hidden">
-            <h2>В. Сигнальные игры (Signaling Games)</h2>
-            <p><strong>Суть:</strong> Один игрок отправляет «сигнал» (например, крупный ордер), а другие его интерпретируют.</p>
-            <p><strong>В трейдинге:</strong> Маркет-мейкеры намеренно оставляют крупные ордера в стакане, чтобы манипулировать ожиданиями.</p>
-            <div class="example">
-                <strong>Пример:</strong> Большая заявка на покупку по $100 — сигнал, что цена не упадёт ниже.
-            </div>
-
-            <div class="chart-container">
-                <canvas id="signalingChart"></canvas>
-            </div>
-
-            <h3>Сценарии</h3>
-            <div class="scenario">
-                <h4>Сценарий 1: Истинный сигнал</h4>
-                <p>Крупный игрок действительно поддерживает цену, и она растёт после его входа.</p>
-            </div>
-            <div class="scenario">
-                <h4>Сценарий 2: Ложный сигнал</h4>
-                <p>Ордер исчезает после привлечения внимания, цена разворачивается.</p>
-            </div>
-            <div class="scenario">
-                <h4>Сценарий 3: Конкурирующие сигналы</h4>
-                <p>Несколько крупных игроков отправляют противоречивые сигналы, создавая волатильность.</p>
-            </div>
-        </section>
-
-        <!-- Маркет-мейкинг -->
-        <section id="market-making" class="strategy-section hidden">
-            <h2>А. Маркет-мейкинг (равновесие Нэша)</h2>
-            <p><strong>Откуда взята:</strong> Из модели «игры на спреде»: маркет-мейкеры выставляют заявки так, чтобы ни один из них не мог увеличить прибыль в одиночку.</p>
-            <div class="example">
-                <strong>Пример:</strong> Если все ММ выставляют спред 1%, никто не может сузить его до 0.9%, иначе проиграет.
-            </div>
-
-            <div class="chart-container">
-                <canvas id="marketMakingChart"></canvas>
-            </div>
-
-            <h3>Сценарии</h3>
-            <div class="scenario">
-                <h4>Сценарий 1: Стабильное равновесие</h4>
-                <p>Все маркет-мейкеры поддерживают одинаковый спред, получая стабильную прибыль.</p>
-            </div>
-            <div class="scenario">
-                <h4>Сценарий 2: Нарушение равновесия</h4>
-                <p>Один участник сужает спред, провоцируя ценовую войну и снижение прибыли для всех.</p>
-            </div>
-            <div class="scenario">
-                <h4>Сценарий 3: Координация</h4>
-                <p>Маркет-мейкеры негласно договариваются о минимальном спреде, избегая конкуренции.</p>
-            </div>
-        </section>
-
-        <!-- Алгоритмический трейдинг -->
-        <section id="algorithmic" class="strategy-section hidden">
-            <h2>Б. Алгоритмический трейдинг (байесовские игры)</h2>
-            <p><strong>Откуда взята:</strong> Из теорий с неполной информацией: алгоритмы постоянно обновляют вероятности действий других участников.</p>
-            <div class="example">
-                <strong>Пример:</strong> HFT-алгоритм «учится», что после новостей в 15:00 толпа покупает — и начинает опережать их.
-            </div>
-
-            <div class="chart-container">
-                <canvas id="algorithmicChart"></canvas>
-            </div>
-
-            <h3>Сценарии</h3>
-            <div class="scenario">
-                <h4>Сценарий 1: Предсказуемое поведение</h4>
-                <p>Алгоритм выявляет паттерны и зарабатывает на них, пока они существуют.</p>
-            </div>
-            <div class="scenario">
-                <h4>Сценарий 2: Изменение паттернов</h4>
-                <p>Трейдеры адаптируются, делая старые стратегии алгоритмов неэффективными.</p>
-            </div>
-            <div class="scenario">
-                <h4>Сценарий 3: Гонка алгоритмов</h4>
-                <p>Конкурирующие алгоритмы пытаются переиграть друг друга, создавая хаотичные движения.</p>
-            </div>
-        </section>
-
-        <!-- Охота за ликвидностью -->
-        <section id="liquidity" class="strategy-section hidden">
-            <h2>В. Охота за ликвидностью (аукционные теории)</h2>
-            <p><strong>Откуда взята:</strong> Из аукционов Викри и Groves-Clarke: как выставлять ордера, чтобы минимизировать проскальзывание.</p>
-            <div class="example">
-                <strong>Пример:</strong> Крупный игрок разбивает ордер на части, чтобы не «показать» свои намерения.
-            </div>
-
-            <div class="chart-container">
-                <canvas id="liquidityChart"></canvas>
-            </div>
-
-            <h3>Сценарии</h3>
-            <div class="scenario">
-                <h4>Сценарий 1: Скрытая ликвидность</h4>
-                <p>Крупный ордер исполняется постепенно, не вызывая резких движений цены.</p>
-            </div>
-            <div class="scenario">
-                <h4>Сценарий 2: Обнаружение крупного ордера</h4>
-                <p>Другие участники выявляют крупную позицию и начинают двигать цену против неё.</p>
-            </div>
-            <div class="scenario">
-                <h4>Сценарий 3: Ловушки ликвидности</h4>
-                <p>Маркет-мейкеры искусственно создают ликвидность, чтобы выбить стоп-лоссы.</p>
-            </div>
-        </section>
     </div>
 
-    <footer>
-        <div class="container">
-            <p>Трейдинговые стратегии на основе теории игр | © 2023</p>
-        </div>
-    </footer>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Навигация по разделам
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Удаляем активный класс у всех кнопок
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                // Добавляем активный класс текущей кнопке
-                btn.classList.add('active');
-                
-                // Скрываем все разделы
-                document.querySelectorAll('.strategy-section').forEach(section => {
-                    section.classList.add('hidden');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Навигация
+            const navLinks = document.querySelectorAll('.nav-link');
+            const strategies = document.querySelectorAll('.strategy');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Удаляем активный класс у всех ссылок и стратегий
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    strategies.forEach(s => s.classList.remove('active'));
+                    
+                    // Добавляем активный класс к текущей ссылке
+                    this.classList.add('active');
+                    
+                    // Показываем соответствующую стратегию
+                    const target = this.getAttribute('data-target');
+                    document.getElementById(target).classList.add('active');
+                    
+                    // Перерисовываем графики при переключении
+                    setTimeout(renderCharts, 100);
                 });
+            });
+            
+            // Функция для создания случайных данных для графиков
+            function generateRandomData(length, start, volatility, trend) {
+                const data = [start];
+                for (let i = 1; i < length; i++) {
+                    const change = (Math.random() - 0.5) * volatility + trend;
+                    data.push(data[i-1] + change);
+                }
+                return data;
+            }
+            
+            // Функция для рендеринга всех графиков
+            function renderCharts() {
+                // Дилемма трейдера
+                renderChart(
+                    'dilemmaChart',
+                    ['Все покупают', 'Все ждут', 'Оптимальная стратегия'],
+                    [
+                        generateRandomData(20, 100, 15, 5),
+                        generateRandomData(20, 100, 5, 2),
+                        generateRandomData(20, 100, 10, -3).map((v, i) => i < 5 ? v - 20 : v + 15)
+                    ],
+                    ['#FF6384', '#36A2EB', '#4BC0C0']
+                );
                 
-                // Показываем выбранный раздел
-                const target = btn.getAttribute('data-target');
-                document.getElementById(target).classList.remove('hidden');
-            });
+                // Война на истощение
+                renderChart(
+                    'attritionChart',
+                    ['Цена актива', 'Позиции крупных игроков', 'Позиции мелких трейдеров'],
+                    [
+                        generateRandomData(20, 100, 10, -1),
+                        generateRandomData(20, 80, 5, -0.5),
+                        generateRandomData(20, 50, 8, -2)
+                    ],
+                    ['#FF9F40', '#9966FF', '#FFCD56']
+                );
+                
+                // Сигнальные игры
+                renderChart(
+                    'signalingChart',
+                    ['Цена', 'Крупные ордера на покупку', 'Крупные ордера на продажу'],
+                    [
+                        generateRandomData(20, 100, 8, 0),
+                        generateRandomData(20, 0, 2, 0).map((v, i) => i === 5 ? 30 : i === 10 ? 40 : 0),
+                        generateRandomData(20, 0, 2, 0).map((v, i) => i === 8 ? 25 : i === 15 ? 35 : 0)
+                    ],
+                    ['#4BC0C0', '#66FF66', '#FF6666']
+                );
+                
+                // Маркет-мейкинг
+                renderChart(
+                    'marketMakingChart',
+                    ['Спред', 'Объем покупок', 'Объем продаж'],
+                    [
+                        generateRandomData(20, 2, 0.3, 0),
+                        generateRandomData(20, 100, 20, 0),
+                        generateRandomData(20, 100, 20, 0)
+                    ],
+                    ['#9966FF', '#36A2EB', '#FF6384']
+                );
+                
+                // Алгоритмический трейдинг
+                renderChart(
+                    'algorithmicChart',
+                    ['Цена', 'Алгоритмические ордера', 'Ручные ордера'],
+                    [
+                        generateRandomData(30, 100, 5, 0.2),
+                        generateRandomData(30, 0, 10, 0).map((v, i) => i % 3 === 0 ? 30 + Math.random() * 20 : 0),
+                        generateRandomData(30, 0, 10, 0).map((v, i) => i === 10 ? 50 : i === 20 ? 40 : 0)
+                    ],
+                    ['#FFCE56', '#4BC0C0', '#FF9F40']
+                );
+                
+                // Охота за ликвидностью
+                renderChart(
+                    'liquidityChart',
+                    ['Цена', 'Видимые ордера', 'Скрытые ордера'],
+                    [
+                        generateRandomData(25, 100, 3, 0.1),
+                        generateRandomData(25, 20, 5, 0),
+                        generateRandomData(25, 0, 2, 0).map((v, i) => i % 4 === 0 ? 15 + Math.random() * 10 : 0)
+                    ],
+                    ['#36A2EB', '#FF6384', '#9966FF']
+                );
+            }
+            
+            // Функция для рендеринга одного графика
+            function renderChart(canvasId, labels, datasets, colors) {
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                
+                // Удаляем предыдущий график, если он существует
+                if (window[canvasId + 'Instance']) {
+                    window[canvasId + 'Instance'].destroy();
+                }
+                
+                const chartData = {
+                    labels: Array.from({length: datasets[0].length}, (_, i) => i + 1),
+                    datasets: datasets.map((data, i) => ({
+                        label: labels[i],
+                        data: data,
+                        borderColor: colors[i],
+                        backgroundColor: colors[i] + '40',
+                        borderWidth: 2,
+                        fill: i === 0,
+                        tension: 0.1
+                    }))
+                };
+                
+                const chartOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: '#424242'
+                            },
+                            ticks: {
+                                color: '#9e9e9e'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#424242'
+                            },
+                            ticks: {
+                                color: '#9e9e9e'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0'
+                            }
+                        }
+                    }
+                };
+                
+                window[canvasId + 'Instance'] = new Chart(ctx, {
+                    type: 'line',
+                    data: chartData,
+                    options: chartOptions
+                });
+            }
+            
+            // Первоначальный рендеринг графиков
+            renderCharts();
         });
-
-        // Инициализация всех графиков
-        function initCharts() {
-            // Дилемма трейдера
-            new Chart(document.getElementById('prisonerChart'), {
-                type: 'line',
-                data: {
-                    labels: ['День 1', 'День 2', 'День 3', 'День 4', 'День 5', 'День 6', 'День 7'],
-                    datasets: [
-                        {
-                            label: 'Цена актива',
-                            data: [100, 95, 85, 80, 75, 85, 95],
-                            borderColor: '#bb86fc',
-                            backgroundColor: 'rgba(187, 134, 252, 0.1)',
-                            tension: 0.3,
-                            fill: true
-                        },
-                        {
-                            label: 'Объем покупок',
-                            data: [20, 30, 10, 5, 15, 40, 60],
-                            borderColor: '#03dac6',
-                            backgroundColor: 'rgba(3, 218, 198, 0.1)',
-                            tension: 0.3,
-                            fill: true,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            grid: {
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        },
-                        y1: {
-                            position: 'right',
-                            beginAtZero: true,
-                            grid: {
-                                drawOnChartArea: false,
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#e0e0e0'
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Война на истощение
-            new Chart(document.getElementById('attritionChart'), {
-                type: 'line',
-                data: {
-                    labels: Array.from({length: 30}, (_, i) => `День ${i+1}`),
-                    datasets: [
-                        {
-                            label: 'Цена актива',
-                            data: [100, 98, 95, 92, 90, 88, 85, 83, 80, 78, 75, 73, 70, 68, 65, 63, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125],
-                            borderColor: '#bb86fc',
-                            backgroundColor: 'rgba(187, 134, 252, 0.1)',
-                            tension: 0.3,
-                            fill: true
-                        },
-                        {
-                            label: 'Позиции фондов',
-                            data: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35],
-                            borderColor: '#ff7597',
-                            backgroundColor: 'rgba(255, 117, 151, 0.1)',
-                            tension: 0.3,
-                            fill: true,
-                            yAxisID: 'y1'
-                        },
-                        {
-                            label: 'Позиции трейдеров',
-                            data: [100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85],
-                            borderColor: '#03dac6',
-                            backgroundColor: 'rgba(3, 218, 198, 0.1)',
-                            tension: 0.3,
-                            fill: true,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            grid: {
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        },
-                        y1: {
-                            position: 'right',
-                            beginAtZero: true,
-                            grid: {
-                                drawOnChartArea: false,
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#e0e0e0'
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Сигнальные игры
-            new Chart(document.getElementById('signalingChart'), {
-                type: 'line',
-                data: {
-                    labels: Array.from({length: 20}, (_, i) => `Минута ${i+1}`),
-                    datasets: [
-                        {
-                            label: 'Цена актива',
-                            data: [100, 101, 102, 103, 104, 105, 106, 107, 108, 107, 106, 105, 104, 103, 102, 101, 100, 99, 98, 97],
-                            borderColor: '#bb86fc',
-                            backgroundColor: 'rgba(187, 134, 252, 0.1)',
-                            tension: 0.3,
-                            fill: true
-                        },
-                        {
-                            label: 'Крупные ордера',
-                            data: [null, null, null, null, null, 150, null, null, null, null, null, null, null, null, null, null, null, 50, null, null],
-                            borderColor: '#ff7597',
-                            backgroundColor: 'rgba(255, 117, 151, 0.5)',
-                            borderWidth: 2,
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            grid: {
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        },
-                        y1: {
-                            position: 'right',
-                            beginAtZero: true,
-                            grid: {
-                                drawOnChartArea: false,
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#e0e0e0'
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Маркет-мейкинг
-            new Chart(document.getElementById('marketMakingChart'), {
-                type: 'bar',
-                data: {
-                    labels: ['ММ1', 'ММ2', 'ММ3', 'ММ4'],
-                    datasets: [
-                        {
-                            label: 'Спред (в %)',
-                            data: [1.0, 1.0, 1.0, 1.0],
-                            backgroundColor: [
-                                'rgba(187, 134, 252, 0.7)',
-                                'rgba(187, 134, 252, 0.7)',
-                                'rgba(187, 134, 252, 0.7)',
-                                'rgba(187, 134, 252, 0.7)'
-                            ],
-                            borderColor: [
-                                'rgba(187, 134, 252, 1)',
-                                'rgba(187, 134, 252, 1)',
-                                'rgba(187, 134, 252, 1)',
-                                'rgba(187, 134, 252, 1)'
-                            ],
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'После изменения',
-                            data: [0.9, 1.0, 1.0, 1.0],
-                            backgroundColor: [
-                                'rgba(3, 218, 198, 0.7)',
-                                'rgba(187, 134, 252, 0.7)',
-                                'rgba(187, 134, 252, 0.7)',
-                                'rgba(187, 134, 252, 0.7)'
-                            ],
-                            borderColor: [
-                                'rgba(3, 218, 198, 1)',
-                                'rgba(187, 134, 252, 1)',
-                                'rgba(187, 134, 252, 1)',
-                                'rgba(187, 134, 252, 1)'
-                            ],
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#e0e0e0'
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Алгоритмический трейдинг
-            new Chart(document.getElementById('algorithmicChart'), {
-                type: 'line',
-                data: {
-                    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
-                    datasets: [
-                        {
-                            label: 'Цена актива',
-                            data: [100, 101, 102, 101, 100, 99, 98, 97, 96, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 105, 104, 103],
-                            borderColor: '#bb86fc',
-                            backgroundColor: 'rgba(187, 134, 252, 0.1)',
-                            tension: 0.3,
-                            fill: true
-                        },
-                        {
-                            label: 'Активность алгоритмов',
-                            data: [10, 15, 20, 18, 15, 12, 10, 8, 5, 3, 5, 8, 15, 25, 40, 60, 80, 70, 60, 50, 40, 30, 20, 15],
-                            borderColor: '#03dac6',
-                            backgroundColor: 'rgba(3, 218, 198, 0.1)',
-                            tension: 0.3,
-                            fill: true,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            grid: {
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        },
-                        y1: {
-                            position: 'right',
-                            beginAtZero: true,
-                            grid: {
-                                drawOnChartArea: false,
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#e0e0e0'
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Охота за ликвидностью
-            new Chart(document.getElementById('liquidityChart'), {
-                type: 'line',
-                data: {
-                    labels: Array.from({length: 15}, (_, i) => `Сделка ${i+1}`),
-                    datasets: [
-                        {
-                            label: 'Цена актива',
-                            data: [100, 100.1, 100.2, 100.3, 100.4, 100.5, 100.6, 100.7, 100.8, 100.9, 101.0, 101.1, 101.2, 101.3, 101.4],
-                            borderColor: '#bb86fc',
-                            backgroundColor: 'rgba(187, 134, 252, 0.1)',
-                            tension: 0.3,
-                            fill: true
-                        },
-                        {
-                            label: 'Объем скрытого ордера',
-                            data: [500, 450, 400, 350, 300, 250, 200, 150, 100, 50, 0, 0, 0, 0, 0],
-                            borderColor: '#ff7597',
-                            backgroundColor: 'rgba(255, 117, 151, 0.1)',
-                            tension: 0.3,
-                            fill: true,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            grid: {
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        },
-                        y1: {
-                            position: 'right',
-                            beginAtZero: true,
-                            grid: {
-                                drawOnChartArea: false,
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                color: '#333'
-                            },
-                            ticks: {
-                                color: '#e0e0e0'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#e0e0e0'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Инициализация при загрузке страницы
-        window.onload = function() {
-            initCharts();
-        };
     </script>
 </body>
 </html>
